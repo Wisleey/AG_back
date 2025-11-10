@@ -1,0 +1,129 @@
+// Prisma Schema para Plataforma de Networking
+// PostgreSQL 14+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum TipoUsuario {
+  ADMIN
+  GESTOR
+  MEMBRO
+}
+
+enum StatusIntencao {
+  PENDENTE
+  APROVADO
+  REJEITADO
+}
+
+enum StatusMembro {
+  ATIVO
+  INATIVO
+  PENDENTE
+  SUSPENSO
+}
+
+enum StatusIndicacao {
+  ABERTA
+  EM_ANDAMENTO
+  FECHADA
+  PERDIDA
+  CANCELADA
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model Usuario {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  senhaHash    String      @map("senha_hash")
+  nome         String
+  tipo         TipoUsuario @default(MEMBRO)
+  ativo        Boolean     @default(true)
+  criadoEm     DateTime    @default(now()) @map("criado_em")
+  atualizadoEm DateTime    @updatedAt @map("atualizado_em")
+
+  membro Membro?
+
+  @@map("usuario")
+}
+
+model Intencao {
+  id             String          @id @default(uuid())
+  nome           String
+  email          String          @unique
+  telefone       String
+  empresa        String
+  cargo          String?
+  areaAtuacao    String?         @map("area_atuacao")
+  mensagem       String?         @db.Text
+  status         StatusIntencao  @default(PENDENTE)
+  aprovadoPor    String?         @map("aprovado_por")
+  dataIntencao   DateTime        @default(now()) @map("data_intencao")
+  dataAvaliacao  DateTime?       @map("data_avaliacao")
+  motivoRejeicao String?         @db.Text @map("motivo_rejeicao")
+  tokenConvite   String?         @unique @map("token_convite")
+
+  @@map("intencao")
+}
+
+model Membro {
+  id            String       @id @default(uuid())
+  usuarioId     String       @unique @map("usuario_id")
+  nomeCompleto  String       @map("nome_completo")
+  email         String       @unique
+  telefone      String?
+  empresa       String?
+  cargo         String?
+  areaAtuacao   String?      @map("area_atuacao")
+  fotoUrl       String?      @map("foto_url")
+  linkedin      String?
+  status        StatusMembro @default(ATIVO)
+  dataEntrada   DateTime?    @map("data_entrada") @db.Date
+  bio           String?      @db.Text
+  criadoEm      DateTime     @default(now()) @map("criado_em")
+  atualizadoEm  DateTime     @updatedAt @map("atualizado_em")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  indicacoesFeitas    Indicacao[] @relation("MembroIndicador")
+  indicacoesRecebidas Indicacao[] @relation("MembroIndicado")
+
+  @@map("membro")
+}
+
+model Indicacao {
+  id                 String           @id @default(uuid())
+  membroIndicadorId  String           @map("membro_indicador_id")
+  membroIndicadoId   String           @map("membro_indicado_id")
+  titulo             String
+  descricao          String           @db.Text
+  cliente            String
+  contatoCliente     String?          @map("contato_cliente")
+  valorEstimado      Decimal?         @map("valor_estimado") @db.Decimal(15, 2)
+  status             StatusIndicacao  @default(ABERTA)
+  dataIndicacao      DateTime         @default(now()) @map("data_indicacao") @db.Date
+  dataFechamento     DateTime?        @map("data_fechamento") @db.Date
+  valorFechado       Decimal?         @map("valor_fechado") @db.Decimal(15, 2)
+  percentualComissao Int?             @map("percentual_comissao")
+  criadoEm           DateTime         @default(now()) @map("criado_em")
+  atualizadoEm       DateTime         @updatedAt @map("atualizado_em")
+
+  membroIndicador Membro @relation("MembroIndicador", fields: [membroIndicadorId], references: [id], onDelete: Cascade)
+  membroIndicado  Membro @relation("MembroIndicado", fields: [membroIndicadoId], references: [id], onDelete: Cascade)
+
+  @@map("indicacao")
+}
+

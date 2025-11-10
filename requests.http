@@ -1,0 +1,152 @@
+### =============================================================================
+### API de Gestão de Networking - Requests HTTP
+### Use a extensão "REST Client" no VS Code para testar
+### =============================================================================
+
+@baseUrl = http://localhost:3001/api
+@adminKey = admin_super_secret_key_123
+
+### =============================================================================
+### HEALTH CHECK
+### =============================================================================
+
+### Health Check
+GET {{baseUrl}}/health
+
+### =============================================================================
+### INTENÇÕES - Rotas Públicas
+### =============================================================================
+
+### Criar nova intenção (Público)
+POST {{baseUrl}}/intencoes
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "email": "joao.teste@exemplo.com",
+  "telefone": "(11) 91234-5678",
+  "empresa": "Tech Solutions",
+  "cargo": "CEO",
+  "areaAtuacao": "Tecnologia",
+  "mensagem": "Gostaria de fazer parte da rede de networking"
+}
+
+### Buscar intenção por token (para validação no cadastro)
+GET {{baseUrl}}/intencoes/token/550e8400-e29b-41d4-a716-446655440000
+
+### =============================================================================
+### INTENÇÕES - Rotas Admin
+### =============================================================================
+
+### Listar todas as intenções (Admin)
+GET {{baseUrl}}/intencoes/admin
+x-admin-key: {{adminKey}}
+
+### Listar intenções pendentes
+GET {{baseUrl}}/intencoes/admin?status=PENDENTE
+x-admin-key: {{adminKey}}
+
+### Buscar intenção específica
+@intencaoId = cole-aqui-o-id-da-intencao
+GET {{baseUrl}}/intencoes/admin/{{intencaoId}}
+x-admin-key: {{adminKey}}
+
+### Aprovar intenção
+PUT {{baseUrl}}/intencoes/admin/{{intencaoId}}/aprovar
+x-admin-key: {{adminKey}}
+Content-Type: application/json
+
+{
+  "observacoes": "Perfil aprovado para o grupo"
+}
+
+### Rejeitar intenção
+PUT {{baseUrl}}/intencoes/admin/{{intencaoId}}/rejeitar
+x-admin-key: {{adminKey}}
+Content-Type: application/json
+
+{
+  "motivo": "Área de atuação já está completa no momento"
+}
+
+### Estatísticas de intenções
+GET {{baseUrl}}/intencoes/admin/estatisticas/geral
+x-admin-key: {{adminKey}}
+
+### =============================================================================
+### MEMBROS
+### =============================================================================
+
+### Cadastro completo via token
+@tokenConvite = 550e8400-e29b-41d4-a716-446655440000
+POST {{baseUrl}}/membros/cadastro/{{tokenConvite}}
+Content-Type: application/json
+
+{
+  "senha": "SenhaForte123",
+  "cargo": "CEO",
+  "areaAtuacao": "Contabilidade",
+  "telefone": "(11) 95555-4444",
+  "linkedin": "https://linkedin.com/in/julia",
+  "bio": "Contadora com 10 anos de experiência",
+  "fotoUrl": "https://exemplo.com/foto.jpg"
+}
+
+### Listar membros (Admin)
+GET {{baseUrl}}/membros
+x-admin-key: {{adminKey}}
+
+### Listar apenas membros ativos
+GET {{baseUrl}}/membros?status=ATIVO
+x-admin-key: {{adminKey}}
+
+### Buscar membro específico
+@membroId = cole-aqui-o-id-do-membro
+GET {{baseUrl}}/membros/{{membroId}}
+x-admin-key: {{adminKey}}
+
+### Estatísticas de membros
+GET {{baseUrl}}/membros/estatisticas
+x-admin-key: {{adminKey}}
+
+### =============================================================================
+### DASHBOARD
+### =============================================================================
+
+### Métricas gerais do dashboard
+GET {{baseUrl}}/dashboard
+x-admin-key: {{adminKey}}
+
+### Dados para gráficos de indicações
+GET {{baseUrl}}/dashboard/indicacoes/grafico
+x-admin-key: {{adminKey}}
+
+### =============================================================================
+### TESTES DE ERRO
+### =============================================================================
+
+### Erro 400 - Validação
+POST {{baseUrl}}/intencoes
+Content-Type: application/json
+
+{
+  "nome": "Jo",
+  "email": "email-invalido",
+  "telefone": "123"
+}
+
+### Erro 401 - Sem admin key
+GET {{baseUrl}}/intencoes/admin
+
+### Erro 403 - Admin key inválida
+GET {{baseUrl}}/intencoes/admin
+x-admin-key: chave-invalida
+
+### Erro 404 - Rota não existe
+GET {{baseUrl}}/rota-inexistente
+
+### =============================================================================
+### FIM
+### =============================================================================
+
+

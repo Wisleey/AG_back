@@ -131,12 +131,13 @@ export class IntencaoService {
   ): Promise<{ intencao: Intencao; tokenConvite: string }> {
     const intencao = await this.buscarPorId(id);
 
-    if (intencao.status !== StatusIntencao.PENDENTE) {
-      throw ApiError.badRequest('Esta intenção já foi avaliada');
+    // Permitir aprovar intenções pendentes ou rejeitadas (re-aprovar)
+    if (intencao.status === StatusIntencao.APROVADO) {
+      throw ApiError.badRequest('Esta intenção já está aprovada');
     }
 
-    // Gerar token de convite
-    const tokenConvite = generateInviteToken();
+    // Gerar novo token ou usar existente
+    const tokenConvite = intencao.tokenConvite || generateInviteToken();
 
     // Atualizar intenção
     const intencaoAtualizada = await prisma.intencao.update({
@@ -146,6 +147,7 @@ export class IntencaoService {
         aprovadoPor,
         dataAvaliacao: new Date(),
         tokenConvite,
+        motivoRejeicao: null, // Limpar motivo de rejeição anterior
       },
     });
 
@@ -168,8 +170,9 @@ export class IntencaoService {
   ): Promise<Intencao> {
     const intencao = await this.buscarPorId(id);
 
-    if (intencao.status !== StatusIntencao.PENDENTE) {
-      throw ApiError.badRequest('Esta intenção já foi avaliada');
+    // Permitir rejeitar intenções pendentes ou aprovadas (cancelar aprovação)
+    if (intencao.status === StatusIntencao.REJEITADO) {
+      throw ApiError.badRequest('Esta intenção já está rejeitada');
     }
 
     // Atualizar intenção
@@ -180,6 +183,7 @@ export class IntencaoService {
         aprovadoPor,
         dataAvaliacao: new Date(),
         motivoRejeicao: data.motivo,
+        tokenConvite: null, // Invalidar token se existir
       },
     });
 

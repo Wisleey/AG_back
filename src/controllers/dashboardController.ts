@@ -15,6 +15,7 @@ export class DashboardController {
     try {
       const metricas = await dashboardService.obterMetricas();
       const indicacoesMes = await dashboardService.indicacoesMesAtual();
+      const obrigadosMes = await dashboardService.obrigadosMesAtual();
       const topIndicadores = await dashboardService.topMembrosIndicacoes();
       const topIndicados = await dashboardService.topMembrosIndicacoesRecebidas();
 
@@ -22,6 +23,7 @@ export class DashboardController {
         ApiResponse.success({
           ...metricas,
           indicacoesMesAtual: indicacoesMes,
+          obrigadosMesAtual: obrigadosMes,
           topMembrosIndicadores: topIndicadores,
           topMembrosIndicados: topIndicados,
         })

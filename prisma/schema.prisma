@@ -100,6 +100,8 @@ model Membro {
 
   indicacoesFeitas    Indicacao[] @relation("MembroIndicador")
   indicacoesRecebidas Indicacao[] @relation("MembroIndicado")
+  obrigadosFeitos     Obrigado[]  @relation("MembroQueAgradece")
+  obrigadosRecebidos  Obrigado[]  @relation("MembroAgradecido")
 
   @@map("membro")
 }
@@ -121,9 +123,26 @@ model Indicacao {
   criadoEm           DateTime         @default(now()) @map("criado_em")
   atualizadoEm       DateTime         @updatedAt @map("atualizado_em")
 
-  membroIndicador Membro @relation("MembroIndicador", fields: [membroIndicadorId], references: [id], onDelete: Cascade)
-  membroIndicado  Membro @relation("MembroIndicado", fields: [membroIndicadoId], references: [id], onDelete: Cascade)
+  membroIndicador Membro     @relation("MembroIndicador", fields: [membroIndicadorId], references: [id], onDelete: Cascade)
+  membroIndicado  Membro     @relation("MembroIndicado", fields: [membroIndicadoId], references: [id], onDelete: Cascade)
+  obrigados       Obrigado[]
 
   @@map("indicacao")
+}
+
+model Obrigado {
+  id                String   @id @default(uuid())
+  indicacaoId       String?  @map("indicacao_id")
+  membroQueAgradece String   @map("membro_que_agradece")
+  membroAgradecido  String   @map("membro_agradecido")
+  mensagem          String?  @db.Text
+  dataObrigado      DateTime @default(now()) @map("data_obrigado")
+  criadoEm          DateTime @default(now()) @map("criado_em")
+
+  indicacao        Indicacao? @relation(fields: [indicacaoId], references: [id], onDelete: SetNull)
+  membroAgradeceu  Membro     @relation("MembroQueAgradece", fields: [membroQueAgradece], references: [id], onDelete: Cascade)
+  membroRecebeu    Membro     @relation("MembroAgradecido", fields: [membroAgradecido], references: [id], onDelete: Cascade)
+
+  @@map("obrigado")
 }
 

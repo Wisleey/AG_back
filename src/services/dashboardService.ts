@@ -81,6 +81,25 @@ export class DashboardService {
   }
 
   /**
+   * Obrigados registrados no mês atual
+   */
+  async obrigadosMesAtual() {
+    const inicioMes = new Date();
+    inicioMes.setDate(1);
+    inicioMes.setHours(0, 0, 0, 0);
+
+    const totalObrigadosMes = await prisma.obrigado.count({
+      where: {
+        dataObrigado: {
+          gte: inicioMes,
+        },
+      },
+    });
+
+    return totalObrigadosMes;
+  }
+
+  /**
    * Top 5 membros com mais indicações
    */
   async topMembrosIndicacoes() {

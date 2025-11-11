@@ -29,3 +29,4 @@ router.put('/:id', adminAuth, membroController.atualizar);
 export default router;
 
 
+

@@ -16,3 +16,4 @@ router.get('/indicacoes/grafico', adminAuth, dashboardController.graficoIndicaco
 export default router;
 
 
+

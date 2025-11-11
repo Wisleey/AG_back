@@ -33,7 +33,7 @@ export const rejeitarIntencaoSchema = z.object({
     id: z.string().uuid('ID inválido'),
   }),
   body: z.object({
-    motivo: z.string().min(10, 'Motivo deve ter no mínimo 10 caracteres').max(500),
+    motivo: z.string().min(3, 'Motivo deve ter no mínimo 3 caracteres').max(500).optional().default('Sem motivo especificado'),
   }),
 });
 

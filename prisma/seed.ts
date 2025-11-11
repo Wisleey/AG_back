@@ -13,6 +13,7 @@ async function main() {
 
   // Limpar dados existentes
   console.log('🗑️  Limpando dados existentes...');
+  await prisma.obrigado.deleteMany();
   await prisma.indicacao.deleteMany();
   await prisma.membro.deleteMany();
   await prisma.intencao.deleteMany();
@@ -190,11 +191,48 @@ async function main() {
     },
   ];
 
+  const indicacoes = [];
   for (const indicacaoData of indicacoesData) {
-    await prisma.indicacao.create({
+    const indicacao = await prisma.indicacao.create({
       data: indicacaoData,
     });
+    indicacoes.push(indicacao);
     console.log(`✅ Indicação criada: ${indicacaoData.titulo}`);
+  }
+
+  console.log('');
+
+  // ====================================================================
+  // OBRIGADOS
+  // ====================================================================
+  console.log('🙏 Criando obrigados...');
+
+  const obrigadosData = [
+    {
+      indicacaoId: indicacoes[0].id, // Consultoria para empresa XYZ
+      membroQueAgradece: membros[1].id, // Maria agradece
+      membroAgradecido: membros[0].id, // João pela indicação
+      mensagem: 'Muito obrigada pela indicação! O cliente fechou comigo.',
+    },
+    {
+      indicacaoId: indicacoes[2].id, // Desenvolvimento de site
+      membroQueAgradece: membros[2].id, // Pedro agradece
+      membroAgradecido: membros[0].id, // João pela indicação
+      mensagem: 'Excelente indicação! Fechamos o projeto.',
+    },
+    {
+      indicacaoId: null, // Obrigado sem indicação específica
+      membroQueAgradece: membros[0].id, // João agradece
+      membroAgradecido: membros[1].id, // Maria pelo suporte
+      mensagem: 'Obrigado pela ajuda no último evento!',
+    },
+  ];
+
+  for (const obrigadoData of obrigadosData) {
+    await prisma.obrigado.create({
+      data: obrigadoData,
+    });
+    console.log(`✅ Obrigado criado`);
   }
 
   console.log('\n✅ Seed concluído com sucesso!\n');
@@ -205,6 +243,7 @@ async function main() {
   console.log(`👥 Membros: ${await prisma.membro.count()}`);
   console.log(`📝 Intenções: ${await prisma.intencao.count()}`);
   console.log(`🤝 Indicações: ${await prisma.indicacao.count()}`);
+  console.log(`🙏 Obrigados: ${await prisma.obrigado.count()}`);
   console.log('');
   console.log('🔑 Credenciais de acesso:');
   console.log('----------------------------');

@@ -64,11 +64,11 @@ model Intencao {
   id             String          @id @default(uuid())
   nome           String
   email          String          @unique
-  telefone       String
+  telefone       String?
   empresa        String
   cargo          String?
   areaAtuacao    String?         @map("area_atuacao")
-  mensagem       String?         @db.Text
+  mensagem       String          @db.Text
   status         StatusIntencao  @default(PENDENTE)
   aprovadoPor    String?         @map("aprovado_por")
   dataIntencao   DateTime        @default(now()) @map("data_intencao")

@@ -9,11 +9,12 @@ export const criarIntencaoSchema = z.object({
   body: z.object({
     nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres').max(255),
     email: z.string().email('Email inválido'),
-    telefone: z.string().min(10, 'Telefone inválido').max(20),
     empresa: z.string().min(2, 'Nome da empresa é obrigatório').max(255),
+    mensagem: z.string().min(10, 'Por favor, conte-nos por que quer participar').max(1000),
+    // Campos opcionais (mantidos por compatibilidade)
+    telefone: z.string().max(20).optional(),
     cargo: z.string().max(255).optional(),
     areaAtuacao: z.string().max(255).optional(),
-    mensagem: z.string().max(1000).optional(),
   }),
 });
 
